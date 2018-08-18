@@ -1,4 +1,5 @@
-import * from time 
+import * 
+from time 
 import ctime
 
 ctrCmd = ['S','N']
