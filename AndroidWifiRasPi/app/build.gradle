@@ -2,7 +2,11 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
+<<<<<<< HEAD
     buildToolsVersion "25.0.1"
+=======
+    buildToolsVersion '27.0.3'
+>>>>>>> da830c54544b485418af5919556ffd1ace8040e3
     defaultConfig {
         applicationId "com.example.jackyle.wifi_rasp"
         minSdkVersion 23
@@ -26,4 +30,8 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.0.1'
     testCompile 'junit:junit:4.12'
+<<<<<<< HEAD
+=======
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+>>>>>>> da830c54544b485418af5919556ffd1ace8040e3
 }
