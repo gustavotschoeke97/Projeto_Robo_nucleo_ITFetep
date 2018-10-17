@@ -1,9 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="16dp"
     android:paddingRight="16dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Raspberry IP Address" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="192.168.1.28:21567"
+        android:ems="10"
+        android:layout_marginTop="16dp"
+        android:id="@+id/ipAddress"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:text="Up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ipAddress"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="12dp"
+        android:id="@+id/btnUp" />
+
+    <Button
+        android:text="Down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnDown"
+        android:layout_below="@+id/btnUp"
+        android:layout_alignStart="@+id/btnUp"
+        android:layout_marginTop="16dp" />
+</RelativeLayout>
+=======
+    tools:context="com.example.jackyle.wifi_rasp.MainActivity"
+    tools:layout_editor_absoluteY="81dp">
+>>>>>>> 6546bac6f0b58332c72c550c6879924ee6325343
 
 
     <Button
@@ -51,4 +91,9 @@
         android:layout_marginTop="7dp"
         android:visibility="visible" />
 
+<<<<<<< HEAD
 </RelativeLayout>
+=======
+</android.support.constraint.ConstraintLayout>
+>>>>>>> da830c54544b485418af5919556ffd1ace8040e3
+>>>>>>> 6546bac6f0b58332c72c550c6879924ee6325343

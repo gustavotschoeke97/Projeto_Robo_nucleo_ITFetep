@@ -1,9 +1,20 @@
 package com.example.jackyle.wifi_rasp;
 
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.util.Log;
+import java.io.DataOutputStream;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.Settings;
@@ -32,7 +43,11 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity  {
     //UI Element
+
     WebView video;
+
+
+
     EditText txtAddress;
     Button btnUp, btnDown, btnLeft, btnRight;
     Socket myAppSocket = null;
@@ -64,110 +79,114 @@ public class MainActivity extends AppCompatActivity  {
         //Socket_Async socket =  new Socket_Async();
         //socket.execute();
 
+
        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
         btnUp.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        //ButtonAction("1UP");
-                        builder.setTitle("1UP").show();
+                                     @Override
+                                     public boolean onTouch(View v, MotionEvent event) {
+                                         switch (event.getAction()) {
+                                             case MotionEvent.ACTION_DOWN:
+                                                 //ButtonAction("1UP");
+                                                 builder.setTitle("1UP").show();
 
-                        btnUp.setBackgroundColor(Color.MAGENTA);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        //ButtonAction("0UP");
-                        builder.setTitle("0UP").show();
-                        btnUp.setBackgroundColor(Color.LTGRAY);
-                        break;
+                                                 btnUp.setBackgroundColor(Color.MAGENTA);
+                                                 break;
+                                             case MotionEvent.ACTION_UP:
+                                                 //ButtonAction("0UP");
+                                                 builder.setTitle("0UP").show();
+                                                 btnUp.setBackgroundColor(Color.LTGRAY);
+                                                 break;
+                                         }
+                                         return false;
+
+                                     }
+                                 });
+                btnDown.setOnTouchListener(new View.OnTouchListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        switch (event.getAction()) {
+                            case MotionEvent.ACTION_DOWN:
+                                ButtonAction("1DW");
+                                btnDown.setBackgroundColor(Color.MAGENTA);
+                                break;
+                            case MotionEvent.ACTION_UP:
+                                ButtonAction("0DW");
+                                btnDown.setBackgroundColor(Color.LTGRAY);
+                                break;
+                        }
+                        return false;
+                    }
+                });
+
+                btnLeft.setOnTouchListener(new View.OnTouchListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        switch (event.getAction()) {
+                            case MotionEvent.ACTION_DOWN:
+                                ButtonAction("1LF");
+                                btnLeft.setBackgroundColor(Color.MAGENTA);
+                                break;
+                            case MotionEvent.ACTION_UP:
+                                ButtonAction("0LF");
+                                btnLeft.setBackgroundColor(Color.LTGRAY);
+                                break;
+                        }
+                        return false;
+                    }
+                });
+
+
+                btnRight.setOnTouchListener(new View.OnTouchListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        switch (event.getAction()) {
+                            case MotionEvent.ACTION_DOWN:
+                                ButtonAction("1RG");
+                                btnRight.setBackgroundColor(Color.MAGENTA);
+                                break;
+                            case MotionEvent.ACTION_UP:
+                                ButtonAction("0RG");
+                                btnRight.setBackgroundColor(Color.LTGRAY);
+                                break;
+                        }
+                        return false;
+                    }
+                });
+            }
+
+            public void PlayVideo() {
+                try {
+                    WebSettings webSettings = video.getSettings();
+                    webSettings.setJavaScriptEnabled(true);
+                    video.loadUrl("http://192.168.0.100:7000");
+                    video.setWebViewClient(new WebViewClient() {
+                        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                            video.loadUrl("file:///android_asset/erro.html");
+                        }
+                    });
+                } catch (Exception e) {
+                    System.out.println(e.toString());
                 }
+            }
+
+
+
+
+      //  @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
+        public boolean ButtonAction(String button) {
+            CMD = button;
+            Socket_AsyncTask EnviaCMD = new Socket_AsyncTask();
+            try {
+                EnviaCMD.execute();
+            } catch (Exception e) {
                 return false;
             }
-        });
-
-        btnDown.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        ButtonAction("1DW");
-                        btnDown.setBackgroundColor(Color.MAGENTA);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        ButtonAction("0DW");
-                        btnDown.setBackgroundColor(Color.LTGRAY);
-                        break;
-                }
-                return false;
-            }
-        });
-
-        btnLeft.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        ButtonAction("1LF");
-                        btnLeft.setBackgroundColor(Color.MAGENTA);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        ButtonAction("0LF");
-                        btnLeft.setBackgroundColor(Color.LTGRAY);
-                        break;
-                }
-                return false;
-            }
-        });
-
-
-        btnRight.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        ButtonAction("1RG");
-                        btnRight.setBackgroundColor(Color.MAGENTA);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        ButtonAction("0RG");
-                        btnRight.setBackgroundColor(Color.LTGRAY);
-                        break;
-                }
-                return false;
-            }
-        });
-    }
-
-    public void PlayVideo() {
-        try {
-            WebSettings webSettings = video.getSettings();
-            webSettings.setJavaScriptEnabled(true);
-            video.loadUrl("http://192.168.0.100:7000");
-            video.setWebViewClient(new WebViewClient() {
-                public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                    video.loadUrl("file:///android_asset/erro.html");
-                }
-            });
-        } catch (Exception e) {
-            System.out.println(e.toString());
+            return true;
         }
-    }
-
-    public boolean ButtonAction(String button) {
-        CMD = button;
-        Socket_AsyncTask EnviaCMD = new Socket_AsyncTask();
-        try {
-            EnviaCMD.execute();
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
-
-
-
-
+    //@RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
     public class Socket_AsyncTask extends AsyncTask<Void,Void,Void> {
         @Override
         protected Void doInBackground(Void... params){
@@ -183,6 +202,7 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
+  //  @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
     public class Socket_Async extends AsyncTask<Void,Void,Void> {
         @Override
         protected Void doInBackground(Void... params){
