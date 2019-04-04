@@ -1,9 +1,9 @@
 #define PINO_PWM     3      //pino de aceleração
 #define PINO_FREIO   4
 #define PINO_REVERSO 5      // pino inverte rotação
-#define TEMPO        50  //tempo (ms) em que o motor gira
-#define PINO_FREIO_DIR 7
-#define PINO_REVERSO_DIR 8
+#define TEMPO        500  //tempo (ms) em que o motor gira
+#define PINO_FREIO_DIR 8
+#define PINO_REVERSO_DIR 7
 #define PINO_PWM_DIR 9
 char read_value;
 bool freio = false;
@@ -37,15 +37,17 @@ void loop() {
     case '2':
       freio = false;
       digitalWrite(PINO_FREIO, 1);
+      digitalWrite(PINO_FREIO_DIR, 1);
       digitalWrite(PINO_REVERSO, HIGH);
+      digitalWrite(PINO_REVERSO_DIR, HIGH);
       delay(100);
       Movimenta(freio);
       break;
     case '3':
       freio = true;
       Movimenta(freio);
-      digitalWrite(PINO_REVERSO_DIR, 1);
       digitalWrite(PINO_FREIO, 0);
+      digitalWrite(PINO_FREIO_DIR,0);
       break;
   }
 }
@@ -53,16 +55,8 @@ void loop() {
 void Movimenta(bool freio) {
   float duty_cicle = 0;
   if (freio == true) {
-    for (int i = 50; i > 0; i--) {  
-      analogWrite(PINO_PWM, i);
-      analogWrite(PINO_PWM_DIR, i);
-      delay(TEMPO);
-      if (i > 0 ) {
-        duty_cicle = (i / 256) * 100;
-        Serial.print("Valor do PWM: ");
-        Serial.println(duty_cicle,DEC);
-      }
-    }
+      analogWrite(PINO_PWM, 0);
+      analogWrite(PINO_PWM_DIR, 0);
   }
   else {
       for (int i = 0; i < 80; i++) {      //acelera para frente
@@ -70,14 +64,13 @@ void Movimenta(bool freio) {
         analogWrite(PINO_PWM_DIR, i);
         delay(TEMPO);
         if (i > 0 ) {
-           duty_cicle = (i/256);
-           duty_cicle = duty_cicle * 100;
+           //duty_cicle = (i/256);
+          // duty_cicle = duty_cicle * 100;
            Serial.print("Valor do PWM: ");
-           Serial.println(duty_cicle,DEC);
+           Serial.println(i);
         }
       }   
       read_value=0;
   }
 }
     
-
