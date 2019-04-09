@@ -1,7 +1,8 @@
+#include <Wire.h>
 #define PINO_PWM     3      //pino de aceleração
 #define PINO_FREIO   4
 #define PINO_REVERSO 5      // pino inverte rotação
-#define TEMPO        500  //tempo (ms) em que o motor gira
+#define TEMPO        100  //tempo (ms) em que o motor gira
 #define PINO_FREIO_DIR 8
 #define PINO_REVERSO_DIR 7
 #define PINO_PWM_DIR 9
@@ -9,6 +10,7 @@ char read_value;
 bool freio = false;
 void setup() {
   Serial.begin(9600);
+  Wire.begin();
   pinMode(PINO_PWM    , OUTPUT);
   pinMode(PINO_REVERSO, OUTPUT);
   pinMode(PINO_FREIO  , OUTPUT);
@@ -18,7 +20,15 @@ void setup() {
 }
 
 void loop() {
-  //Aumento de velocidade (0%..100%)
+  Wire.requestFrom(0x08, 6);
+  delay(200);
+  while (Wire.available()) { // slave may send less than requested
+    char c = Wire.read(); // receive a byte as character
+    delay(20);
+    Serial.print(c);         // print the character
+  }
+  delay(300);
+  
   if (Serial.available() > 0 ){
     read_value = Serial.read();
     Serial.println(read_value);
@@ -50,6 +60,7 @@ void loop() {
       digitalWrite(PINO_FREIO_DIR,0);
       break;
   }
+  delay(100);
 }
 
 void Movimenta(bool freio) {
@@ -59,7 +70,7 @@ void Movimenta(bool freio) {
       analogWrite(PINO_PWM_DIR, 0);
   }
   else {
-      for (int i = 0; i < 80; i++) {      //acelera para frente
+      for (int i = 0; i < 200; i++) {      //acelera para frente
         analogWrite(PINO_PWM, i);
         analogWrite(PINO_PWM_DIR, i);
         delay(TEMPO);
@@ -70,7 +81,8 @@ void Movimenta(bool freio) {
            Serial.println(i);
         }
       }   
-      read_value=0;
+      
   }
+  read_value=0;
 }
     

@@ -1,23 +1,25 @@
+#include <Wire.h>
 #define PIN_2 2
 #define DIR 3
 int cont = 0;
-float rpm;
-float RPM;
-
 unsigned long timer;
 void setup() {
+  Wire.begin(0x08);
+  delay(50);
+  Wire.onRequest(requestEvent);
   pinMode(PIN_2, INPUT_PULLUP);
   pinMode(DIR, INPUT);
   attachInterrupt(digitalPinToInterrupt(PIN_2), CalcVeloRoda, RISING);
+ 
   Serial.begin(9600);
 }
 
 void loop() {
-//  RPM = CalcVeloRoda();
+  delay(100);
 }
 
 void CalcVeloRoda() {
-  
+  float rpm;
   if (cont == 0) {
     timer = millis();
     Serial.print("valor porta 3:");
@@ -35,4 +37,8 @@ void CalcVeloRoda() {
     Serial.println(rpm);
     cont = 0;
   }
+}
+
+void requestEvent(){
+   Wire.write("hello ");
 }
