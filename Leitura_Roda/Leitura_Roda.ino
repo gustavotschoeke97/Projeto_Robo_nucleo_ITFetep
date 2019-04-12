@@ -1,44 +1,44 @@
 #include <Wire.h>
 #define PIN_2 2
-#define DIR 3
+#define DIRECAO 3
+
 int cont = 0;
 unsigned long timer;
-void setup() {
-  Wire.begin(0x08);
-  delay(50);
+void setup(){
+  Wire.begin(8);
   Wire.onRequest(requestEvent);
-  pinMode(PIN_2, INPUT_PULLUP);
-  pinMode(DIR, INPUT);
+  pinMode(PIN_2,  INPUT);
+  pinMode(DIRECAO,INPUT);
   attachInterrupt(digitalPinToInterrupt(PIN_2), CalcVeloRoda, RISING);
- 
   Serial.begin(9600);
 }
 
-void loop() {
+void loop(){
   delay(100);
 }
 
-void CalcVeloRoda() {
-  float rpm;
-  if (cont == 0) {
+void CalcVeloRoda(){
+  float rps;
+  if (cont == 0){
     timer = millis();
     Serial.print("valor porta 3:");
-    Serial.println(digitalRead(DIR)); // módulo esquerdo dir = 0 vai para frente dir = 1 para trás || módulo direito  dir = 1 vai para frente dir = 0 para trás 
+    Serial.println(digitalRead(DIRECAO)); // módulo esquerdo DIRECAO = 0 vai para frente DIRECAO = 1 para trás || módulo  Direito  DIRECAO = 1 vai para frente DIRECAO = 0 para trás 
   }
   cont++;
   Serial.print("valor: ");
   Serial.println(cont);
   if (cont == 15) {
     timer = (millis() - timer)/1000;
-    rpm =1.0/timer; // para dividir floats clocar os números com casas decimais ex: 1.0
-    Serial.println(rpm);
-    rpm =rpm * 60;
-    Serial.print("valor RPM: ");
-    Serial.println(rpm);
+    rps =1.0/timer; // para dividir floats clocar os números com casas decimais ex: 1.0
+    Serial.println(rps);
+    rps =rps * 60;
+    Serial.print("valor RPS: ");
+    Serial.println(rps);
     cont = 0;
   }
 }
 
 void requestEvent(){
-   Wire.write("hello ");
+  //char rps =(char)CalcVeloRoda();
+   Wire.write("");
 }
