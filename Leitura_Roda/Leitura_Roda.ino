@@ -4,8 +4,10 @@
 
 int cont = 0;
 unsigned long timer;
+int rps;
+
 void setup(){
-  Wire.begin(8);
+  Wire.begin(0x0A);
   Wire.onRequest(requestEvent);
   pinMode(PIN_2,  INPUT);
   pinMode(DIRECAO,INPUT);
@@ -18,7 +20,7 @@ void loop(){
 }
 
 void CalcVeloRoda(){
-  float rps;
+  
   if (cont == 0){
     timer = millis();
     Serial.print("valor porta 3:");
@@ -35,10 +37,10 @@ void CalcVeloRoda(){
     Serial.print("valor RPS: ");
     Serial.println(rps);
     cont = 0;
+    rps =  0;
   }
 }
 
 void requestEvent(){
-  //char rps =(char)CalcVeloRoda();
-   Wire.write("");
+   Wire.write(rps);
 }

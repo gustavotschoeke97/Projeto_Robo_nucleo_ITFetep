@@ -8,8 +8,8 @@
 #define PINO_PWM_DIR 9
 char read_value; 
 bool freio = false;
+
 void setup() {
-  Serial.begin(9600);
   Wire.begin();
   pinMode(PINO_PWM    , OUTPUT);
   pinMode(PINO_REVERSO, OUTPUT);
@@ -17,26 +17,29 @@ void setup() {
   pinMode(PINO_PWM_DIR    , OUTPUT);
   pinMode(PINO_REVERSO_DIR, OUTPUT);
   pinMode(PINO_FREIO_DIR  , OUTPUT);
+  Serial.begin(9600);
 }
 
 void loop(){
-  Wire.requestFrom(8, 6);
-  while(Wire.available()){         //  slave may send less than requested
-    char c = Wire.read();         //   receive a byte as character
-    delay(20);                   //    print the character
+  Wire.requestFrom(0x0A,2);          //   slave may send less than requested
+  while(Wire.available()){         //     receive a byte as character
+    byte c = Wire.read();           //    print the character
+    delay(20);                    
     Serial.print(c);        
   }
-  delay(500);
+  Serial.println(" ");
+  delay(3000);
   
   if (Serial.available() > 0 ){
     read_value = Serial.read();
-    Serial.println(read_value);
+    Serial.println(read_value); 
   }
   switch(read_value){
     case '1':
       freio = false;
       digitalWrite(PINO_FREIO, 1);
       digitalWrite(PINO_FREIO_DIR, 1);
+      delay(200);
       digitalWrite(PINO_REVERSO, LOW);
       digitalWrite(PINO_REVERSO_DIR, LOW);
       delay(100);
@@ -47,6 +50,7 @@ void loop(){
       freio = false;
       digitalWrite(PINO_FREIO, 1);
       digitalWrite(PINO_FREIO_DIR, 1);
+      delay(200);
       digitalWrite(PINO_REVERSO, HIGH);
       digitalWrite(PINO_REVERSO_DIR, HIGH);
       delay(100);
