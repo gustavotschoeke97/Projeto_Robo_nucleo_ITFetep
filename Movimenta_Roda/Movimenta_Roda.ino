@@ -21,40 +21,39 @@ void setup() {
 }
 
 void loop(){
-  Wire.requestFrom(0x0A,2);          //   slave may send less than requested
-  while(Wire.available()){         //     receive a byte as character
-    byte c = Wire.read();           //    print the character
-    delay(20);                    
-    Serial.print(c);        
+  Wire.requestFrom(0x08,1);           //   slave may send less than requested
+  while(Wire.available()){           //     receive a byte as character
+    int c = Wire.read();           //    print the character                    
+    Serial.println(c);        
   }
-  Serial.println(" ");
-  delay(3000);
+  delay(250);
   
   if (Serial.available() > 0 ){
     read_value = Serial.read();
-    Serial.println(read_value); 
   }
   switch(read_value){
     case '1':
       freio = false;
       digitalWrite(PINO_FREIO, 1);
       digitalWrite(PINO_FREIO_DIR, 1);
-      delay(200);
+      delay(300);
       digitalWrite(PINO_REVERSO, LOW);
       digitalWrite(PINO_REVERSO_DIR, LOW);
-      delay(100);
-      Movimenta(freio);
+      delay(300);
+      analogWrite(PINO_PWM, 70);
+      analogWrite(PINO_PWM_DIR, 85);
 
       break;
     case '2':
       freio = false;
       digitalWrite(PINO_FREIO, 1);
       digitalWrite(PINO_FREIO_DIR, 1);
-      delay(200);
+      delay(300);
       digitalWrite(PINO_REVERSO, HIGH);
       digitalWrite(PINO_REVERSO_DIR, HIGH);
-      delay(100);
-      Movimenta(freio);
+      delay(300);
+      analogWrite(PINO_PWM, 70);
+      analogWrite(PINO_PWM_DIR, 85);
       break;
     case '3':
       freio = true;
@@ -70,7 +69,6 @@ void loop(){
 }
 
 void Movimenta(bool freio) {
-  float duty_cicle = 0;
   if (freio == true) {
       analogWrite(PINO_PWM, 0);
       analogWrite(PINO_PWM_DIR, 0);
@@ -81,8 +79,6 @@ void Movimenta(bool freio) {
         analogWrite(PINO_PWM_DIR, i);
         delay(TEMPO);
         if (i > 0 ) {
-           //duty_cicle = (i/256);
-          // duty_cicle = duty_cicle * 100;
            Serial.print("Valor do PWM: ");
            Serial.println(i);
         }

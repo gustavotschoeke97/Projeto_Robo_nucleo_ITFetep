@@ -4,10 +4,10 @@
 
 int cont = 0;
 unsigned long timer;
-int rps;
+float rps;
 
 void setup(){
-  Wire.begin(0x0A);
+  Wire.begin(0x08);
   Wire.onRequest(requestEvent);
   pinMode(PIN_2,  INPUT);
   pinMode(DIRECAO,INPUT);
@@ -23,24 +23,24 @@ void CalcVeloRoda(){
   
   if (cont == 0){
     timer = millis();
-    Serial.print("valor porta 3:");
-    Serial.println(digitalRead(DIRECAO)); // módulo esquerdo DIRECAO = 0 vai para frente DIRECAO = 1 para trás || módulo  Direito  DIRECAO = 1 vai para frente DIRECAO = 0 para trás 
+   // Serial.print("modulo direito:");
+  //  Serial.println(digitalRead(DIRECAO)); // módulo esquerdo DIRECAO = 0 vai para frente DIRECAO = 1 para trás || módulo  Direito  DIRECAO = 1 vai para frente DIRECAO = 0 para trás 
   }
   cont++;
-  Serial.print("valor: ");
-  Serial.println(cont);
+  //Serial.print("valor do contador de interrupçoes: ");
+  //Serial.println("Cont: ");
+  //Serial.println(cont);
   if (cont == 15) {
     timer = (millis() - timer)/1000;
-    rps =1.0/timer; // para dividir floats clocar os números com casas decimais ex: 1.0
-    Serial.println(rps);
-    rps =rps * 60;
-    Serial.print("valor RPS: ");
-    Serial.println(rps);
+    rps = 1.0/timer; // para dividir floats colocar os números com casas decimais ex: 1.0
+    rps = rps * 60;
+  //  Serial.print("valor do RPS: ");
+  //  Serial.println("RPS: ");
+    //Serial.println(rps);
     cont = 0;
-    rps =  0;
   }
 }
 
 void requestEvent(){
-   Wire.write(rps);
+   Wire.write(digitalRead(DIRECAO));
 }
