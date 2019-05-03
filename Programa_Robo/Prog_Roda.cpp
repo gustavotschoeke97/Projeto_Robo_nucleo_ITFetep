@@ -7,9 +7,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <time.h>
-#include <wiringPi.h>
+//#include <wiringPi.h>
 #include <pthread.h>
-#include <softPwm.h>
+//#include <softPwm.h>
 #include <signal.h>
 #include <wiringSerial.h>
 //#include <fstream>
@@ -42,10 +42,10 @@ int ace_ini_dir_trz=35;
 int ace_fim_esq_trz=39;
 int ace_fim_dir_trz=40;
 int ace_esq;
-int ace_dir; 
+int ace_dir;
 
 
-pthread_t ace_es, ace_di, g_e, g_d;
+//pthread_t ace_es, ace_di, g_e, g_d;
 
 #define _pin_pul 27
 #define _pin_dir 28
@@ -54,7 +54,7 @@ pthread_t ace_es, ace_di, g_e, g_d;
 int ini_socket();
 bool giro_dir_max=false;
 bool giro_esq_max=false;
-void ativar(){
+/*void ativar(){
     digitalWrite(_pin_Atv, 1);
     usleep(200000);
 }
@@ -205,11 +205,11 @@ void init(){
     softPwmCreate(_pin_Acel_Dir, 0, 100);
     softPwmCreate(_pin_Acel_Esq, 0, 100);
     usleep(1000000);
-}
+}*/
 int main(){
 
     init();
-    ini_socket();
+    //ini_socket();
     int i;
     while(1){
         scanf("%d", &i);
@@ -239,7 +239,7 @@ int main(){
             t_esq();
             for(int i=0; i<60; i++){
                 printf("%d\n",i);
-                softPwmWrite(_pin_Acel_Esq, i);
+               // softPwmWrite(_pin_Acel_Esq, i);
                 usleep(1000000);
             }
         }else if(i==3){
@@ -248,16 +248,16 @@ int main(){
             t_dir();
             for(int i=0; i<60; i++){
                 printf("%d\n", i);
-                softPwmWrite(_pin_Acel_Dir, i);
+               //s softPwmWrite(_pin_Acel_Dir, i);
                 usleep(1000000);
             }
-        }        
+        }
         else{
             parar();
         }
     }
 }
-int ini_socket(){
+/*int ini_socket(){
     struct sockaddr_in server;
     struct sockaddr_in client;
     int cliente;
@@ -278,9 +278,9 @@ int ini_socket(){
     }
 
     listen(sock, 1);
-    
+
     while(1){
-        
+
         cliente = accept(sock, (struct sockaddr*)&client, &addr_size);
         usleep(10000);
         memset(buffer_out, '\0', sizeof(buffer_out));
@@ -338,4 +338,4 @@ int ini_socket(){
         close(cliente);
     }
     close(sock);
-}
+}*/
