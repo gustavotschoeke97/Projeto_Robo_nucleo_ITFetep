@@ -11,7 +11,7 @@
 #define PINO_FREIO_DIR   8
 #define PINO_REVERSO_DIR 7
 #define PINO_PWM_DIR     9
-#define PWM_DIR          80
+#define PWM_DIR          83
 #define PWM_ESQ          70
 #define PWM_DIR_REV      83
 #define PWM_ESQ_REV      45
@@ -29,7 +29,7 @@ Thread        t2 = Thread();
 void setup() {
   Wire.begin(8);
   Wire.onReceive(receiveEvent);
-  Serial.begin(9600);
+  Serial.begin(115200);
   pinMode(PINO_PWM        , OUTPUT);
   pinMode(PINO_REVERSO    , OUTPUT);
   pinMode(PINO_FREIO      , OUTPUT);
@@ -53,13 +53,12 @@ void loop() {
     }
   }
   
-  if (Serial.available()) {
-    read_value = Serial.read();
+  if (Serial.available() > 0) {
+    read_value = char(Serial.read());
+    //Serial.println(read_value);
   }
-
-    
   switch (read_value) {
-    case '1':
+    case '1': // girar para frente
       pwd_control_esq     = PWM_ESQ;        
       pwd_control_dir     = PWM_DIR;       
       freio = false;
@@ -75,7 +74,7 @@ void loop() {
       read_value = 0;
       break;
       
-    case '2':
+    case '2': // girar para tras
       pwd_control_esq_rev = PWM_ESQ_REV;  
       pwd_control_dir_rev = PWM_DIR_REV; 
       freio = false;
@@ -91,27 +90,45 @@ void loop() {
       read_value = 0;
       break;
       
-    case '3':
+    case '3': // freiar tudo
       freio = true;
-      Movimenta(freio);
+      read_value = Movimenta(freio);
       digitalWrite(PINO_FREIO, 0);
       digitalWrite(PINO_FREIO_DIR, 0);
       delay(500);
       digitalWrite(PINO_FREIO, 1);
       digitalWrite(PINO_FREIO_DIR, 1);
       lib_control = false;
-      read_value = 0;
+      
+      break;
+      
+     case '4':// virar esquerda
+      freio = true;
+      read_value = Movimenta(freio);
+      digitalWrite(PINO_FREIO, 1);
+      digitalWrite(PINO_FREIO_DIR, 1);
+      analogWrite(PINO_PWM,pwd_control_esq); 
+      lib_control = false;
+      break;
+      
+      case '5': // virar direita
+      freio = true;
+      read_value = Movimenta(freio);
+      digitalWrite(PINO_FREIO, 1);
+      digitalWrite(PINO_FREIO_DIR, 1);
+      lib_control = false;
       break;
   }
   delay(100);
 }
 
-void Movimenta(bool freio) {
+int Movimenta(bool freio) {
   if (freio == true) {
     analogWrite(PINO_PWM, 0);
     analogWrite(PINO_PWM_DIR, 0);
+    return  0;
   }
-  read_value = 0;
+  return -1;
 }
 
 void receiveEvent(int howMany) {
@@ -122,6 +139,7 @@ void receiveEvent(int howMany) {
   }
   char c[sizeof(Receive_Data) + 1];
   Receive_Data.toCharArray(c, sizeof(c));
+  
   Serial.println(c);
   char* token = strtok(c, "|");
   int i = 0;
