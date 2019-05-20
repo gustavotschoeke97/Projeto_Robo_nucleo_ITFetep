@@ -7,21 +7,25 @@
 #define PINO_PWM         3                   // pino de aceleração
 #define PINO_FREIO       4
 #define PINO_REVERSO     5                  //  pino inverte rotação
-#define TEMPO            100               //   tempo (ms) em que o motor gira
 #define PINO_FREIO_DIR   8
 #define PINO_REVERSO_DIR 7
 #define PINO_PWM_DIR     9
-#define PWM_DIR          83
-#define PWM_ESQ          90
+#define PWM_DIR_INI      98
+#define PWM_ESQ_INI      60
+#define PWM_DIR          104
+#define PWM_ESQ          88
 #define PWM_DIR_REV      83
 #define PWM_ESQ_REV      45
 
-char read_value;
+
+char   read_value;
 String wheel;
-int  dir_esq, dir_dir, pwd_control_esq, pwd_control_esq_rev, pwd_control_dir, pwd_control_dir_rev;
-int  rpm_esq, rpm_dir;
-bool freio       = false;
-bool lib_control = false;
+int    dir_esq, dir_dir, pwd_control_esq, pwd_control_esq_rev, pwd_control_dir, pwd_control_dir_rev;
+int    rpm_esq, rpm_dir;
+bool   freio       = false;
+bool   lib_control = false;
+bool   rodou_dir   = false;
+bool   rodou_esq   = false;
 Thread t[4];
 
 
@@ -35,15 +39,15 @@ void setup() {
   pinMode(PINO_PWM_DIR    , OUTPUT);
   pinMode(PINO_REVERSO_DIR, OUTPUT);
   pinMode(PINO_FREIO_DIR  , OUTPUT);
-  
+
   t[0].onRun(controleRPM);
   t[0].setInterval(50);
   t[1].onRun(controleRPM);
   t[1].setInterval(50);
   t[2].onRun(FrenteDir);
-  t[2].setInterval(75);
+  t[2].setInterval(100);
   t[3].onRun(FrenteEsq);
-  t[3].setInterval(50);
+  t[3].setInterval(100);
 }
 
 void loop() {
@@ -59,12 +63,12 @@ void loop() {
 
   if (Serial.available() > 0) {
     read_value = char(Serial.read());
-    //Serial.println(read_value);
   }
+
   switch (read_value) {
     case '1': // girar para frente
-      pwd_control_esq     = 332;
-      pwd_control_dir     = 70;
+      pwd_control_esq     = PWM_ESQ_INI;
+      pwd_control_dir     = PWM_DIR_INI;
       freio = false;
       digitalWrite(PINO_FREIO, 1);
       digitalWrite(PINO_FREIO_DIR, 1);
@@ -72,46 +76,31 @@ void loop() {
       digitalWrite(PINO_REVERSO, LOW);
       digitalWrite(PINO_REVERSO_DIR, LOW);
       delay(500);
-      t[2].run();
-      t[3].run();
-      
-
-      /*for(int i = 0;i< 90;i++){
-          if(pwd_control_dir == PWM_DIR ){
-            continue;
-          }
-
-          else if( pwd_control_dir  < PWM_DIR ){
-            analogWrite(PINO_PWM_DIR, pwd_control_dir++);
-          }
-
-          if(pwd_control_esq == PWM_ESQ ){
-            continue;
-          }
-          else if( pwd_control_esq  < PWM_ESQ ){
-            analogWrite(PINO_PWM, pwd_control_esq+=6);
-          }
-
-          if(pwd_control_dir >= PWM_DIR && pwd_control_esq  >= PWM_ESQ){
-            break;
-          }
-          delay(70);
-        }*/
-
+      for(int i=0; i<15; i++){
+        if(pwd_control_esq<120){
+          analogWrite(PINO_PWM, pwd_control_esq+=2);
+        }
+        if(pwd_control_dir<120){
+          analogWrite(PINO_PWM_DIR, pwd_control_dir+=2);
+        }
+        delay(50);
+      }
+      analogWrite(PINO_PWM_DIR,pwd_control_dir=PWM_DIR);
+      analogWrite(PINO_PWM,pwd_control_esq=PWM_ESQ);
       lib_control = true;
       read_value = 0;
       break;
 
     case '2': // girar para tras
       pwd_control_esq_rev = 74;
-      pwd_control_dir_rev = 46;
+      pwd_control_dir_rev = 65;
       freio = false;
       digitalWrite(PINO_FREIO, 1);
       digitalWrite(PINO_FREIO_DIR, 1);
-      delay(300);
+      delay(500);
       digitalWrite(PINO_REVERSO, HIGH);
       digitalWrite(PINO_REVERSO_DIR, HIGH);
-      delay(300);
+      delay(500);
       analogWrite(PINO_PWM, pwd_control_esq_rev);
       analogWrite(PINO_PWM_DIR, pwd_control_dir_rev);
       lib_control = true;
@@ -121,11 +110,11 @@ void loop() {
     case '3': // freiar tudo
       freio = true;
       read_value = Movimenta(freio);
-      digitalWrite(PINO_FREIO, 0);
-      digitalWrite(PINO_FREIO_DIR, 0);
+      //digitalWrite(PINO_FREIO, 0);
+      //digitalWrite(PINO_FREIO_DIR, 0);
       while (rpm_dir > 0 && rpm_esq > 0) {
-        Serial.println("ta no while");
-      }
+        Serial.println("freia");
+      };
       Serial.println("Saiu");
       digitalWrite(PINO_FREIO, 1);
       digitalWrite(PINO_FREIO_DIR, 1);
@@ -163,7 +152,6 @@ int Movimenta(bool freio) {
 }
 
 void receiveEvent(int howMany) {
-
   String Receive_Data;
   while (Wire.available()) {                  // loop through all but the last
     Receive_Data += char(Wire.read());       // receive byte as a character
@@ -227,7 +215,7 @@ void controleRPM() {
     if (dir_esq == 0) {
       if (rpm_esq < 50 ) {
         analogWrite(PINO_PWM, pwd_control_esq_rev++);
-        delay(200);
+        delay(100);
       }
       else if (rpm_esq > 50 ) {
         analogWrite(PINO_PWM, pwd_control_esq_rev--);
@@ -249,32 +237,34 @@ void controleRPM() {
 
 
 void FrenteDir() {
-  for (int i = 0; i <= PWM_DIR; i++) {
-    if (pwd_control_dir >= PWM_DIR) {
+  for (int i = PWM_DIR_INI-10; i <= 119; i++) {
+    if (pwd_control_dir >= 119) {
       break;
     }
     else {
       analogWrite(PINO_PWM_DIR, pwd_control_dir++);
     }
-    delay(75);
+    delay(50);
 
   }
 
+  rodou_dir = !rodou_dir;
   t[2].enabled = false;
 
 }
 
 void FrenteEsq() {
-  for (int i = 0; i <= PWM_ESQ; i++) {
-    if (pwd_control_esq >= PWM_ESQ) {
+
+  for (int j = PWM_ESQ_INI; j <= 128; j++) {
+    if (pwd_control_esq >= 128) {
       break;
     }
     else {
-      analogWrite(PINO_PWM, pwd_control_esq++);
+      analogWrite(PINO_PWM, pwd_control_esq+=3);
     }
-
-    delay(1);
+    delay(50);
   }
-
+  analogWrite(PINO_PWM_DIR,88);
+  rodou_esq = !rodou_esq;
   t[3].enabled = false;
 }
